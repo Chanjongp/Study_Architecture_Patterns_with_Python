@@ -1,7 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date
-from typing import Optional, List, Set
+from typing import Optional, List
 
 
 class OutOfStock(Exception):
@@ -26,16 +26,19 @@ class OrderLine:
 
 class Batch:
     def __init__(self, ref: str, sku: str, qty: int, eta: Optional[date]):
-        self.reference = ref
-        self.sku = sku
+        self.reference = ref  # 주문 참조 번호(Order Reference)
+        self.sku = sku  # 제품 (Stock Keeping Unit)
         self.eta = eta
-        self._purchased_quantity = qty
-        self._allocations = set()  # type: Set[OrderLine]
+        self._purchased_quantity = qty  # 구매 수량
+        self._allocations = set()  # 주문 라인(Order Line)  type: Set[OrderLine]
 
     def __repr__(self):
         return f"<Batch {self.reference}>"
 
     def __eq__(self, other):
+        """
+        EQ : equal를 체크하는 함수
+        """
         if not isinstance(other, Batch):
             return False
         return other.reference == self.reference
@@ -61,6 +64,10 @@ class Batch:
     @property
     def allocated_quantity(self) -> int:
         return sum(line.qty for line in self._allocations)
+
+    @property
+    def allocated_orderline(self) -> Optional[set[OrderLine]]:
+        return self._allocations
 
     @property
     def available_quantity(self) -> int:
