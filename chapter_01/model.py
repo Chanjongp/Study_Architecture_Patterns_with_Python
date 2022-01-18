@@ -28,7 +28,7 @@ class Batch:
     def __init__(self, ref: str, sku: str, qty: int, eta: Optional[date]):
         self.reference = ref  # 주문 참조 번호(Order Reference)
         self.sku = sku  # 제품 (Stock Keeping Unit)
-        self.eta = eta
+        self.eta = eta  # 현재 배송중이면 시간정보, 창고 재고면 None
         self._purchased_quantity = qty  # 구매 수량
         self._allocations = set()  # 주문 라인(Order Line)  type: Set[OrderLine]
 
@@ -47,6 +47,10 @@ class Batch:
         return hash(self.reference)
 
     def __gt__(self, other):
+        """
+        1. 이 엔티티의 eta가 없을 경우 -> False
+        2. 비교할 대상의 엔티티의 eta가 없을 경우 -> True (내)
+        """
         if self.eta is None:
             return False
         if other.eta is None:
