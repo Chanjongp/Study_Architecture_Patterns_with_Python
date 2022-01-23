@@ -50,16 +50,26 @@ def insert_allocation(session, orderline_id, batch_id):
 
 
 def test_repository_can_retrieve_a_batch_with_allocations(session):
+    # 1. orderline DB에 INSERT 후 id 가져오기
     orderline_id = insert_order_line(session)
+
+    # 2. batch1 DB에 INSERT 후 id 가져오기 (batch2는 INSERT만)
     batch1_id = insert_batch(session, "batch1")
     insert_batch(session, "batch2")
+
+    # 3. batch1에 orderline 할당하기
     insert_allocation(session, orderline_id, batch1_id)
 
+    # 4. 스키마와 Domain Model이 매핑된 session을 Repository에 적용
     repo = repository.SqlAlchemyRepository(session)
+    # 5. batch1라는 reference를 가지고 있는 데이터를 도메인 모델의 객체로 가져오기
     retrieved = repo.get("batch1")
 
+    # 6. batch1라는 refernece를 가진 도메인 모델인 Batch의 객체를 expected에 할당
     expected = model.Batch("batch1", "GENERIC-SOFA", 100, eta=None)
-    assert retrieved == expected  # Batch.__eq__ only compares reference
+
+    # 7. 5번(Repository Pattern), 6번(도메인 모델에 바로 객체선언)으로 가져온 도메인 모델이 동일한지 체크
+    assert retrieved == expected  # Batch.__eq__ ocomparesnly  reference
     assert retrieved.sku == expected.sku
     assert retrieved._purchased_quantity == expected._purchased_quantity
     assert retrieved._allocations == {
