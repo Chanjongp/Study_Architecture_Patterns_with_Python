@@ -73,3 +73,4 @@ def test_when_a_file_has_been_renamed_in_the_source():
     dest_hashes = {"hash1": "fn2"}
     actions = determine_actions(source_hashes, dest_hashes, Path("/src"), Path("/dst"))
     assert list(actions) == [("MOVE", Path("/dst/fn2"), Path("/dst/fn1"))]
+
